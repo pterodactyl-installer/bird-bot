@@ -5,6 +5,6 @@ jobs:
     include:
         - stage: Build
           install:
-              - npm i --also=dev
+              - npm i --ignore-scripts --also=dev
           script:
               - npm run build
