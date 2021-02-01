@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+    - 'node'
+jobs:
+    include:
+        - stage: Build
+          install:
+              - npm i --also=dev
+          script:
+              - npm run build

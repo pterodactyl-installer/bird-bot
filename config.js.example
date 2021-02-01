@@ -1,0 +1,50 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.config = void 0;
+exports.config = {
+    ownerID: '244024524289343489',
+    token: 'TOKEN',
+    expressPort: INTERNALPORT,
+    expressAliasPort: ALIASPORT,
+    expressFQDN: 'URL',
+    supportMsg: {
+        title: 'TITLE',
+        description: 'DESCRIPTION',
+    },
+    permLevels: [
+        {
+            level: 0,
+            name: 'User',
+            check: () => true,
+        },
+        {
+            level: 2,
+            name: 'Support',
+            check: (message) => {
+                try {
+                    const modRole = message.guild.roles.cache.find((r) => r.name.toLowerCase() ===
+                        message.settings.modRole.toLowerCase());
+                    if (modRole && message.member.roles.cache.has(modRole.id))
+                        return true;
+                }
+                catch (e) {
+                    return false;
+                }
+            },
+        },
+        {
+            level: 4,
+            name: 'Server Owner',
+            check: (message) => message.channel.type === 'text'
+                ? message.guild.ownerID === message.author.id
+                    ? true
+                    : false
+                : false,
+        },
+        {
+            level: 10,
+            name: 'Bot Owner',
+            check: (message) => message.client.config.ownerID === message.author.id,
+        },
+    ],
+};
