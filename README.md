@@ -1,6 +1,7 @@
 # bird-bot
 
 ![GitHub](https://img.shields.io/github/license/vilhelmprytz/bird-bot)
+[![Build Status](https://travis-ci.com/vilhelmprytz/bird-bot.svg?branch=master)](https://travis-ci.com/vilhelmprytz/bird-bot)
 
 Discord bot for the [Pterodactyl Installation Script Discord](https://pterodactyl-installer.se/discord) server!
 
