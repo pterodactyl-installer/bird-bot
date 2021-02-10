@@ -1,16 +1,16 @@
-import { Body } from '../interfaces/TroubleshootBody';
 import validUrl from 'valid-url';
 import fetch from 'node-fetch';
 import { Bot } from '../client/client';
 import { MessageEmbed } from 'discord.js';
 import { checkLog } from './checkLogs';
 import { GuildSettings } from '../interfaces/GuildSettings';
+import { Body } from '../interfaces/TroubleshootBody';
 
-export const handleData = async (
+export const handleBody = async (
     client: Bot,
     body: Body,
     settings: GuildSettings
-): Promise<{ user: MessageEmbed; admin: MessageEmbed }> => {
+): Promise<MessageEmbed> => {
     const embed = client.embed({
         title: 'Logs:',
         description: 'The script has got these logs:',
@@ -50,5 +50,5 @@ export const handleData = async (
     embed.addFields(await checkLog(await handleLog(body.wings_log), 'wings'));
     embed.addFields(await checkLog(await handleLog(body.nginx_check), 'nginx'));
 
-    return { user: embed, admin: embed };
+    return embed;
 };

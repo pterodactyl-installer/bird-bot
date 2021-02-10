@@ -30,11 +30,13 @@ const body_parser_1 = __importDefault(require("body-parser"));
 const discord_js_1 = require("discord.js");
 const logger_1 = require("../modules/logger");
 const functions_1 = require("../modules/functions");
+const handleApi_1 = require("../modules/handleApi");
 class Bot extends discord_js_1.Client {
     constructor() {
         super({ ws: { intents: discord_js_1.Intents.NON_PRIVILEGED } });
         this.commands = new enmap_1.default();
         this.settings = new enmap_1.default('settings');
+        this.apiData = new enmap_1.default();
         this.levelCache = {};
         this.logger = logger_1.Logger;
         this.functions = functions_1.Functions;
@@ -48,6 +50,12 @@ class Bot extends discord_js_1.Client {
         });
         this.express.use(body_parser_1.default.urlencoded({ extended: false }));
         this.express.use(body_parser_1.default.json());
+        this.express.get('/script/:id', (req, res) => {
+            handleApi_1.handleScript(this, req, res);
+        });
+        this.express.post('/data/:id', (req, res) => {
+            handleApi_1.handleData(this, req, res);
+        });
         const commandFiles = fs_1.default
             .readdirSync('./dist/commands')
             .filter((file) => file.endsWith('.js'));
@@ -66,6 +74,11 @@ class Bot extends discord_js_1.Client {
             const thisLevel = this.config.permLevels[i];
             this.levelCache[thisLevel.name] = thisLevel.level;
         }
+        fs_1.default.readFile(`${__dirname}/../../scripts/troubleshooting.sh`, 'utf8', (err, script) => {
+            if (err)
+                return this.logger(`Failed loading the script: ${err}`, 'error');
+            this.script = script;
+        });
     }
     embed(data) {
         return new discord_js_1.MessageEmbed(Object.assign({}, data));

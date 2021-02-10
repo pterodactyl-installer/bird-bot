@@ -1,9 +1,9 @@
 import { EmbedField } from 'discord.js';
 import {
     nginxTriggers,
-    otherTriggers,
     panelTriggers,
     wingsTriggers,
+    otherTriggers,
 } from '../config/triggers';
 
 export const checkLog = async function (

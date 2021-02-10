@@ -12,7 +12,8 @@ export const config: Config = {
     expressPort: 5000,
 
     // Express alias port (external port) can be nothing, when localy the same as expressPort
-    expressAliasPort: 5000,
+    // MUST INCLUDE : at the start if port is used!
+    expressAliasPort: ':5000',
 
     // Express FQDN (external) for user to use to connect
     expressFQDN: 'http://api.api.com',

@@ -1,22 +1,23 @@
 import { Guild, TextChannel, User } from 'discord.js';
 import { Bot } from '../client/client';
 import { GuildSettings } from '../interfaces/GuildSettings';
-import { apiStart } from './api';
 
 export const startSupport = async (
     client: Bot,
     guild: Guild,
     user: User,
     settings: GuildSettings
-): Promise<unknown> => {
+): Promise<void> => {
     try {
-        if (!guild.me!.hasPermission('MANAGE_CHANNELS'))
-            return client.logger(
+        if (!guild.me!.hasPermission('MANAGE_CHANNELS')) {
+            client.logger(
                 `Bot doesn't have permissions to create a channel!`,
                 'error'
             );
+            return;
+        }
         if (guild.channels.cache.some((c) => c.name === user.username)) return;
-        let category = await guild.channels.create(user.username, {
+        const category = await guild.channels.create(user.username, {
             type: 'category',
             permissionOverwrites: [
                 { id: guild.roles.everyone, deny: ['VIEW_CHANNEL'] },
@@ -28,33 +29,47 @@ export const startSupport = async (
             ],
             reason: `Support for ${user.tag}`,
         });
-        let channel = await guild.channels.create('support', {
+        const channel = await guild.channels.create('support', {
             type: 'text',
             topic: `Support for ${user.username}`,
             parent: category,
             reason: `Support for ${user.tag}`,
         });
-        let adminChannel = guild.channels.cache.find(
+        const adminChannel = guild.channels.cache.find(
             (c) => c.name.toLowerCase() === settings.adminChannel
         );
-        apiStart(
-            client,
-            channel,
-            adminChannel as TextChannel,
-            category,
-            guild,
-            user,
-            settings
+        const id = require('shortid').generate();
+        channel.send(
+            user.toString(),
+            client.embed({
+                title: 'Welcome to support!',
+                description: `**You have 10 minutes**\nTo start with run this command in your terminal:\n\`\`\`bash\nbash <(curl -s ${
+                    client.config.expressFQDN + client.config.expressAliasPort
+                }/script/${id})\`\`\``,
+                color: settings.embedColor,
+                timestamp: new Date(),
+            })
         );
+        setTimeout(() => {
+            client.apiData.delete(id);
+            if (!channel.deleted) channel.delete('Exceeded time!');
+            if (!category.deleted) category.delete('Exceeded time!');
+        }, 600000);
+        client.apiData.set(id, {
+            channel: channel.id,
+            adminChannel: adminChannel?.id!,
+            guild: guild.id,
+            user: user,
+            settings: settings,
+        });
     } catch (error) {
         client.logger(error, 'error');
         if (guild.channels.cache.some((c) => c.name === user.username)) {
-            let channel = guild.channels.cache.find(
+            const channel = guild.channels.cache.find(
                 (c) => c.parent?.name === user.username
             );
-            channel?.fetch(true);
-            if (!channel?.deleted) channel?.delete('Error');
-            if (!channel?.parent?.deleted) channel?.parent?.delete('Error');
+            channel?.delete('Error');
+            channel?.parent?.delete('Error');
         }
     }
 };

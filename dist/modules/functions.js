@@ -107,17 +107,6 @@ exports.Functions = {
             return e;
         }
     },
-    removeRoute: (stack, path) => {
-        function removeRoute(route, i, routes) {
-            switch (route.path) {
-                case path:
-                    routes.splice(i, 1);
-            }
-            if (route.route)
-                route.route.stack.forEach(removeRoute);
-        }
-        stack.forEach(removeRoute);
-    },
     createTextChannel: async (message, channelConf) => {
         var _a, _b;
         try {

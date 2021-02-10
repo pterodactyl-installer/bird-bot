@@ -3,11 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleData = void 0;
+exports.handleBody = void 0;
 const valid_url_1 = __importDefault(require("valid-url"));
 const node_fetch_1 = __importDefault(require("node-fetch"));
 const checkLogs_1 = require("./checkLogs");
-const handleData = async (client, body, settings) => {
+const handleBody = async (client, body, settings) => {
     const embed = client.embed({
         title: 'Logs:',
         description: 'The script has got these logs:',
@@ -50,6 +50,6 @@ const handleData = async (client, body, settings) => {
     embed.addFields(await checkLogs_1.checkLog(await handleLog(body.panel_log), 'panel'));
     embed.addFields(await checkLogs_1.checkLog(await handleLog(body.wings_log), 'wings'));
     embed.addFields(await checkLogs_1.checkLog(await handleLog(body.nginx_check), 'nginx'));
-    return { user: embed, admin: embed };
+    return embed;
 };
-exports.handleData = handleData;
+exports.handleBody = handleBody;

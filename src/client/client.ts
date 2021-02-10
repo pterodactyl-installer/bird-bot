@@ -9,6 +9,8 @@ import { Config, permObject } from '../interfaces/Config';
 import { Logger } from '../modules/logger';
 import { Functions } from '../modules/functions';
 import { GuildSettings } from '../interfaces/GuildSettings';
+import { ApiData } from '../interfaces/ApiData';
+import { handleScript, handleData } from '../modules/handleApi';
 
 class Bot extends Client {
     public constructor() {
@@ -16,7 +18,9 @@ class Bot extends Client {
     }
     public commands: enmap<string, Command> = new enmap();
     public settings: enmap<string, GuildSettings> = new enmap('settings');
+    public apiData: enmap<string, ApiData> = new enmap();
     public levelCache: any = {};
+    public script!: string;
     public logger = Logger;
     public functions = Functions;
     public express = express();
@@ -32,6 +36,12 @@ class Bot extends Client {
         });
         this.express.use(bodyParser.urlencoded({ extended: false }));
         this.express.use(bodyParser.json());
+        this.express.get('/script/:id', (req, res) => {
+            handleScript(this, req, res);
+        });
+        this.express.post('/data/:id', (req, res) => {
+            handleData(this, req, res);
+        });
         const commandFiles = fs
             .readdirSync('./dist/commands')
             .filter((file) => file.endsWith('.js'));
@@ -50,6 +60,18 @@ class Bot extends Client {
             const thisLevel: permObject = this.config.permLevels[i];
             this.levelCache[thisLevel.name] = thisLevel.level;
         }
+        fs.readFile(
+            `${__dirname}/../../scripts/troubleshooting.sh`,
+            'utf8',
+            (err, script) => {
+                if (err)
+                    return this.logger(
+                        `Failed loading the script: ${err}`,
+                        'error'
+                    );
+                this.script = script;
+            }
+        );
     }
     public embed(data: MessageEmbedOptions): MessageEmbed {
         return new MessageEmbed({
