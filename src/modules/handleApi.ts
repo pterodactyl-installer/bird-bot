@@ -1,6 +1,6 @@
 import { TextChannel } from 'discord.js';
 import { Request, Response } from 'express';
-import { Bot } from '../client/client';
+import { Bot } from '../classes/Client';
 import { handleBody } from './handleReqBody';
 
 export const handleScript = (
@@ -15,11 +15,7 @@ export const handleScript = (
     }
     const script = client.script.replace(
         'LINK',
-        `${
-            client.config.expressFQDN +
-            client.config.expressAliasPort +
-            `/data/${req.params.id}`
-        }`
+        `${client.config.expressFQDN + `/data/${req.params.id}`}`
     );
     res.status(200).send(script);
 };
@@ -35,13 +31,13 @@ export const handleData = async (
         return;
     }
     client.apiData.delete(req.params.id);
-    const guild = client.guilds.cache.find((g) => g.id === apiData.guild)!;
-    const channel = guild.channels.cache.find(
+    const guild = client.guilds.cache.find((g) => g.id === apiData.guild);
+    const channel = guild?.channels.cache.find(
         (c) => c.id === apiData.channel
-    )! as TextChannel;
-    const adminChannel = guild.channels.cache.find(
+    ) as TextChannel;
+    const adminChannel = guild?.channels.cache.find(
         (c) => c.id === apiData.adminChannel
-    )! as TextChannel;
+    ) as TextChannel;
     if (!req.body) {
         res.status(422).send({
             code: 422,
@@ -59,9 +55,8 @@ export const handleData = async (
         );
         channel.parent?.delete('Bad request body');
         channel.delete('Bad request body');
-        client.logger(
-            `Invalid data received! Stopping ${apiData.user.toString()} support instance!`,
-            'warn'
+        client.logger.warn(
+            `Invalid data received! Stopping ${apiData.user.toString()} support instance!`
         );
         return;
     } else {
@@ -78,7 +73,7 @@ export const handleData = async (
             .catch();
         if (rez === 'y') {
             channel.delete('End of support');
-            channel.parent!.delete('End of support');
+            channel.parent?.delete('End of support');
         }
     }
 };

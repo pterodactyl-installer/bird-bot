@@ -1,17 +1,16 @@
 import { Message } from '../classes/Message';
 import { RunFunction } from '../interfaces/Event';
 
-export const name: string = 'message';
 export const run: RunFunction = async (client, message: Message) => {
-    if (message.author.bot || !message.guild) return; // Don't listen to yourself
+    if (message.author.bot || !message.guild) return; // Don't listen to bots or DM
 
     const settings = (message.settings = client.functions.getSettings(
         client,
-        message.guild!
+        message.guild
     )); // Grab the settings for this server
 
     // Checks if the bot was mentioned, with no message after it, returns the prefix.
-    const prefixMention = new RegExp(`^<@!?${client.user!.id}>( |)$`);
+    const prefixMention = new RegExp(`^<@!?${client.user?.id}>( |)$`);
     if (message.content.match(prefixMention))
         return message.reply(`My prefix is \`${settings.prefix}\``);
 
@@ -22,37 +21,37 @@ export const run: RunFunction = async (client, message: Message) => {
         .slice(settings.prefix.length)
         .trim()
         .split(/ +/g);
-    const command = args.shift()!.toLowerCase();
+    const command = args.shift()?.toLowerCase();
+
+    // Return if no command was after prefix
+    if (!command) return;
 
     // If the member on a guild is invisible or not cached, fetch them.
     if (message.guild && !message.member)
         await message.guild.members.fetch(message.author);
 
     // Get the user or member's permission level from the elevation
-    const level = client.functions.permlevel(client, message);
+    const level = (message.author.level = client.functions.permlevel(
+        client,
+        message
+    ));
+    const levelName = (message.author.levelName =
+        client.config.permLevels.find((l) => l.level === level)?.name ||
+        'Unknown');
 
     // Check whether the command, or alias, exist
     const cmd = client.commands.get(command);
     if (!cmd) return;
 
     // Check permissions
-    if (level < client.levelCache[cmd.conf.permLevel]) {
-        return message.channel
-            .send(`You do not have permission to use this command.
-  Your permission level is ${level} (${
-            client.config.permLevels.find((l) => l.level === level)!.name
-        })
-  This command requires level ${client.levelCache[cmd.conf.permLevel]} (${
-            cmd.conf.permLevel
-        })`);
+    if (level < (client.levelCache[cmd.conf.permLevel] || 10)) {
+        return message.channel.send(
+            client.functions.permissionError(client, message, cmd)
+        );
     }
-
     // If the command exists, **AND** the user has permission, run it.
-    client.logger(
-        `${client.config.permLevels.find((l) => l.level === level)!.name} ${
-            message.author.username
-        } (${message.author.id}) ran command ${cmd.conf.name}`,
-        'cmd'
+    client.logger.cmd(
+        `${levelName} ${message.author.username} (${message.author.id}) ran command ${cmd.conf.name}`
     );
-    cmd.run(client, message, args, level);
+    cmd.run(client, message, args);
 };

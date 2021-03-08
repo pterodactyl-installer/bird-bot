@@ -1,10 +1,11 @@
-import { Message as DiscordMessage } from 'discord.js';
-import { Bot } from '../client/client';
+import { Guild, Message as DiscordMessage } from 'discord.js';
+import { Bot } from './Client';
 import { GuildSettings } from '../interfaces/GuildSettings';
+import { User } from './User';
 
-class Message extends DiscordMessage {
+export class Message extends DiscordMessage {
     public settings!: GuildSettings;
     public client!: Bot;
+    public guild!: Guild;
+    public author!: User;
 }
-
-export { Message };

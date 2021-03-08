@@ -1,10 +1,15 @@
 language: node_js
 node_js:
-  - "node"
+    - 'node'
 jobs:
-  include:
-    - stage: Build
-      install:
-        - npm i --ignore-scripts --also=dev
-      script:
-        - npm run build
+    include:
+        - stage: Build
+          install:
+              - npm i --ignore-scripts
+          script:
+              - npm run build
+        - stage: Check code quality
+          install:
+              - npm i --ignore-scripts --also=dev
+          script:
+              - npm run lint

@@ -1,17 +1,12 @@
 import { Message } from '../classes/Message';
-import { Bot } from '../client/client';
+import { Bot } from '../classes/Client';
 
 export interface SetupFunction {
     (client: Bot): Promise<unknown>;
 }
 
 export interface RunFunction {
-    (
-        client: Bot,
-        message: Message,
-        args: string[],
-        level: number
-    ): Promise<unknown>;
+    (client: Bot, message: Message, args: string[]): Promise<unknown>;
 }
 export interface confObject {
     name: string;

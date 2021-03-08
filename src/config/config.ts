@@ -1,22 +1,24 @@
+import { Message } from '../classes/Message';
+import { Bot } from '../classes/Client';
 import { Config } from '../interfaces/Config';
-import { Bot } from '../client/client';
+import { config as dotenv } from 'dotenv';
+
+dotenv();
 
 export const config: Config = {
-    // Bot Owner, level 10 by default. A User ID. (Linux123123)
+    // Bot Creator, level 10 by default. A User ID. (Linux123123)
     ownerID: '244024524289343489',
 
     // Your Bot's Token. Available on https://discord.com/developers/applications/me
-    token: 'TOKEN',
+    token: process.env.TOKEN ? process.env.TOKEN : 'TOKEN',
 
     // Express internal server port
-    expressPort: 5000,
+    expressPort: process.env.PORT
+        ? parseInt(process.env.PORT)
+        : parseInt('PORT'),
 
-    // Express alias port (external port) can be nothing, when localy the same as expressPort
-    // MUST INCLUDE : at the start if port is used!
-    expressAliasPort: ':5000',
-
-    // Express FQDN (external) for user to use to connect
-    expressFQDN: 'http://api.api.com',
+    // Express FQDN (external) for user to use to connect (can include :port)
+    expressFQDN: process.env.FQDN ? process.env.FQDN : 'FQDN',
 
     // Support Message
     supportMsg: {
@@ -26,49 +28,56 @@ export const config: Config = {
 
     // PERMISSION LEVEL DEFINITIONS.
     permLevels: [
-        // This is the lowest permisison level, this is for non-roled users.
         {
             level: 0,
             name: 'User',
-            // Don't bother checking, just return true which allows them to execute any command their
-            // level allows them to.
             check: () => true,
         },
-
-        // This is your permission level, the staff levels should always be above the rest of the roles.
         {
             level: 2,
-            name: 'Support',
-            check: (message) => {
+            name: 'Moderator',
+            check: (message: Message): boolean => {
                 try {
-                    const modRole = message.guild!.roles.cache.find(
+                    const modRole = message.guild?.roles.cache.find(
                         (r) =>
                             r.name.toLowerCase() ===
                             message.settings.modRole.toLowerCase()
                     );
-                    if (modRole && message.member!.roles.cache.has(modRole.id))
+                    if (modRole && message.member?.roles.cache.has(modRole.id))
                         return true;
+                    return false;
                 } catch (e) {
                     return false;
                 }
             },
         },
-        // This is the server owner.
+        {
+            level: 3,
+            name: 'Administrator',
+            check: (message: Message): boolean => {
+                try {
+                    const adminRole = message.guild?.roles.cache.find(
+                        (r) =>
+                            r.name.toLowerCase() ===
+                            message.settings.adminRole.toLowerCase()
+                    );
+                    if (!adminRole) return false;
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    return message.member!.roles.cache.has(adminRole.id);
+                } catch (e) {
+                    return false;
+                }
+            },
+        },
         {
             level: 4,
             name: 'Server Owner',
-            // Simple check, if the guild owner id matches the message author's ID, then it will return true.
-            // Otherwise it will return false.
             check: (message) =>
-                message.channel.type === 'text'
-                    ? message.guild!.ownerID === message.author.id
-                        ? true
-                        : false
-                    : false,
+                message.guild?.ownerID === message.author.id ? true : false,
         },
         {
             level: 10,
-            name: 'Bot Owner',
+            name: 'Bot Creator',
             // Another simple check, compares the message author id to the one stored in the config file.
             check: (message) =>
                 (message.client as Bot).config.ownerID === message.author.id,

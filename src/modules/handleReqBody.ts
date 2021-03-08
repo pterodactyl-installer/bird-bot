@@ -1,6 +1,6 @@
 import validUrl from 'valid-url';
 import fetch from 'node-fetch';
-import { Bot } from '../client/client';
+import { Bot } from '../classes/Client';
 import { MessageEmbed } from 'discord.js';
 import { checkLog } from './checkLogs';
 import { GuildSettings } from '../interfaces/GuildSettings';
@@ -37,7 +37,8 @@ export const handleBody = async (
                 return 'Empty';
             }
         } catch (err) {
-            client.logger(err, 'error');
+            client.logger.error(`There has been an error: ${err}`);
+            console.error(err);
             return 'Empty';
         }
     };

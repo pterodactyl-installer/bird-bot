@@ -15,6 +15,11 @@ curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 sudo apt-get install -y nodejs
 ```
 
+# Docker image
+
+We provide an easy to use `docker-compose.yml` file. Just install `docker` and `docker-compose`.
+Then fill in the `env` variables in the `dokcer-compose.yml` file and run `docker-compose up -d`
+
 ## Installation
 
 ```bash
@@ -27,7 +32,8 @@ npm i --production
 
 ## Configuration
 
-Triggers are defined in `dist/triggers.js`.
+Triggers are defined in `src/triggers.js`.
+After editing triggers you will need to recompile with `npm run build`
 For all the other things you will be prompted automatically.
 
 ## Running

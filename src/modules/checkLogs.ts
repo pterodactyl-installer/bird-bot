@@ -11,7 +11,7 @@ export const checkLog = async function (
     triggerSet: string
 ): Promise<EmbedField[]> {
     if (log == 'Empty') return [];
-    let fields: EmbedField[] = [];
+    const fields: EmbedField[] = [];
     let triggers;
     switch (triggerSet) {
         case 'panel':
@@ -25,6 +25,7 @@ export const checkLog = async function (
             break;
         case 'other':
             triggers = otherTriggers;
+            break;
         default:
             return [];
     }

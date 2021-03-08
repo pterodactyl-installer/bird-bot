@@ -1,0 +1,12 @@
+version: '3'
+services:
+    bird-bot:
+        image: 'linux123123/images:bird-bot'
+        container_name: 'bird-bot'
+        environment:
+            - TOKEN=
+            - PORT=5000
+            - FQDN=https://
+        ports:
+            - 5000:5000
+        restart: unless-stopped

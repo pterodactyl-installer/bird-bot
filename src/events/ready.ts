@@ -1,13 +1,10 @@
 import { RunFunction } from '../interfaces/Event';
-export const name: string = 'ready';
-export const run: RunFunction = async (client) => {
-    client.logger(
-        `${client.user!.tag}, ready to serve ${
-            client.users.cache.size
-        } users in ${client.guilds.cache.size} servers.`,
-        'ready'
+import { defaultSettings } from '../modules/Functions';
+export const run: RunFunction = (client) => {
+    client.logger.ready(
+        `${client.user?.tag}, ready to serve ${client.users.cache.size} users in ${client.guilds.cache.size} servers.`
     );
-    client.user!.setActivity(`${client.settings.get('default')!.prefix}help`, {
+    client.user?.setActivity(`${defaultSettings.prefix}help`, {
         type: 'PLAYING',
     });
 };

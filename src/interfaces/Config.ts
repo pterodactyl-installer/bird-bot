@@ -2,7 +2,7 @@ import { MessageEmbedOptions } from 'discord.js';
 import { Message } from '../classes/Message';
 
 export interface permCheck {
-    (message: Message): boolean | undefined;
+    (message: Message): boolean;
 }
 
 export interface permObject {
@@ -15,7 +15,6 @@ export interface Config {
     ownerID: string;
     token: string;
     expressPort: number;
-    expressAliasPort: string;
     expressFQDN: string;
     supportMsg: MessageEmbedOptions;
     permLevels: permObject[];

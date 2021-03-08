@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { TextChannel } from 'discord.js';
 import { RunFunction } from '../interfaces/Command';
 import { GuildSettings } from '../interfaces/GuildSettings';
@@ -90,7 +91,6 @@ export const run: RunFunction = async (
         );
     }
 };
-
 export const conf = {
     name: 'set',
     permLevel: 'Administrator',

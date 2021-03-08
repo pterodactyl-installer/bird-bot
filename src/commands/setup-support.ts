@@ -1,15 +1,16 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { MessageReaction, User } from 'discord.js';
 import { RunFunction } from '../interfaces/Command';
 import { startSupport } from '../modules/support';
 
-export const run: RunFunction = async (client, message, args, level) => {
+export const run: RunFunction = async (client, message, args) => {
     if (args.length < 2)
         return message.reply('Must provide 2 channel names! (support) (admin)');
-    let channel = await client.functions.createTextChannel(message, {
+    const channel = await client.functions.createTextChannel(message, {
         name: args[0],
         options: { topic: 'Support', reason: 'Support' },
     });
-    let adminChannel = await client.functions.createTextChannel(message, {
+    const adminChannel = await client.functions.createTextChannel(message, {
         name: args[1],
         options: {
             topic: 'Support admin',
@@ -21,7 +22,7 @@ export const run: RunFunction = async (client, message, args, level) => {
                     allow: ['MANAGE_CHANNELS', 'VIEW_CHANNEL'],
                 },
                 {
-                    id: message.guild?.roles.cache.find(
+                    id: message.guild!.roles.cache.find(
                         (r) => r.name === message.settings.supportRole
                     )!,
                     allow: ['VIEW_CHANNEL'],
@@ -36,28 +37,30 @@ export const run: RunFunction = async (client, message, args, level) => {
     channel.send(client.embed(client.config.supportMsg)).then(async (msg) => {
         client.settings.set(message.guild!.id, msg?.id, 'supportMsg');
         await msg.react('🔧').catch((e) => {
-            return client.logger(e, 'error');
+            client.logger.error(`An error has accured: ${e}`);
+            console.error(e);
+            return;
         });
         const filter = (reaction: MessageReaction, user: User) =>
             user.id !== client.user!.id;
-        let collector = msg.createReactionCollector(filter);
+        const collector = msg.createReactionCollector(filter);
         collector.on('collect', (reaction, user) => {
             if (reaction.emoji.name === '🔧') {
-                client.logger(
+                client.logger.cmd(
                     `${
                         client.config.permLevels.find(
                             (l) =>
                                 l.level ===
                                 client.functions.permlevel(client, message)
                         )!.name
-                    } ${user.username} (${user.id}) ran command support`,
-                    'cmd'
+                    } ${user.username} (${user.id}) ran command support`
                 );
                 startSupport(client, message.guild!, user, message.settings);
             }
-            reaction.users
-                .remove(user)
-                .catch((err) => client.logger(err, 'error'));
+            reaction.users.remove(user).catch((err) => {
+                client.logger.error(`An error has accured: ${err}`);
+                console.error(err);
+            });
         });
     });
 };

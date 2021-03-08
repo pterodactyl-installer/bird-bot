@@ -1,16 +1,18 @@
 import { EmbedFieldData } from 'discord.js';
+import { Bot } from '../classes/Client';
 import { Command, RunFunction } from '../interfaces/Command';
 
-export const run: RunFunction = async (client, message, args, level) => {
+export const run: RunFunction = async (client: Bot, message, args) => {
     // If no specific command is called, show all filtered commands.
     if (!args[0]) {
         // Filter all commands by which are available for the user's level, using the <Collection>.filter() method.
         const myCommands = client.commands.filter(
-            (cmd) => client.levelCache[cmd.conf.permLevel] <= level
+            (cmd) =>
+                client.levelCache[cmd.conf.permLevel] <= message.author.level
         );
 
         let currentCategory = '';
-        let fields: EmbedFieldData[] = [];
+        const fields: EmbedFieldData[] = [];
         let fieldsNum = 0;
         const sorted = myCommands
             .array()
@@ -45,10 +47,14 @@ export const run: RunFunction = async (client, message, args, level) => {
         );
     } else {
         // Show individual command's help.
-        let cmd = args[0];
+        const cmd = args[0];
         if (client.commands.has(cmd)) {
-            let command: Command = client.commands.get(cmd)!;
-            if (level < client.levelCache[command.conf.permLevel]) return;
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const command: Command = client.commands.get(cmd)!;
+            if (
+                message.author.level < client.levelCache[command.conf.permLevel]
+            )
+                return;
             message.channel.send(
                 client.embed({
                     title: 'Command list',
