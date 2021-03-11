@@ -1,45 +1,17 @@
 import { EmbedField } from "discord.js";
-import {
-  nginxTriggers,
-  panelTriggers,
-  wingsTriggers,
-  otherTriggers,
-} from "../config/triggers";
+import { Bot } from "../classes/Client";
 
-export const checkLog = async function (
-  log: string,
-  triggerSet: string
-): Promise<EmbedField[]> {
-  if (log == "Empty") return [];
+export const checkLog = function (client: Bot, log: string): EmbedField[] {
+  if (log === "Empty") return [];
   const fields: EmbedField[] = [];
-  let triggers;
-  switch (triggerSet) {
-    case "panel":
-      triggers = panelTriggers;
-      break;
-    case "wings":
-      triggers = wingsTriggers;
-      break;
-    case "nginx":
-      triggers = nginxTriggers;
-      break;
-    case "other":
-      triggers = otherTriggers;
-      break;
-    default:
-      return [];
-  }
-  triggers.forEach((trigger) => {
-    for (let i = 0; i < trigger.keys.length; i++) {
-      const key = trigger.keys[i];
-      if (log.includes(key)) {
-        fields.push({
-          name: `Problem: ${triggerSet}`,
-          value: trigger.lines.join("\n"),
-          inline: false,
-        });
-        break;
-      }
+  client.triggers.forEach((v, k) => {
+    if (log.includes(k)) {
+      const field: EmbedField = {
+        name: `\u200b`,
+        value: v.join("\n"),
+        inline: false,
+      };
+      if (!fields.includes(field)) fields.push(field);
     }
   });
   return fields;

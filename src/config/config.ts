@@ -13,7 +13,7 @@ export const config: Config = {
   token: process.env.TOKEN ? process.env.TOKEN : "TOKEN",
 
   // Express internal server port
-  expressPort: process.env.PORT ? parseInt(process.env.PORT) : parseInt("PORT"),
+  expressPort: process.env.PORT ? process.env.PORT : "PORT",
 
   // Express FQDN (external) for user to use to connect (can include :port)
   expressFQDN: process.env.FQDN ? process.env.FQDN : "FQDN",

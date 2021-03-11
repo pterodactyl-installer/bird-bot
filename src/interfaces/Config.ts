@@ -14,7 +14,7 @@ export interface permObject {
 export interface Config {
   ownerID: string;
   token: string;
-  expressPort: number;
+  expressPort: string;
   expressFQDN: string;
   supportMsg: MessageEmbedOptions;
   permLevels: permObject[];

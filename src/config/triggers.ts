@@ -1,6 +1,6 @@
-import { trigger } from "../interfaces/Triggers";
+import { Trigger } from "../interfaces/Triggers";
 
-export const panelTriggers: trigger[] = [
+export const triggers: Trigger[] = [
   {
     keys: ["exception while attempting to communicate with the daemon"],
     lines: [
@@ -13,8 +13,6 @@ export const panelTriggers: trigger[] = [
       "Enable SSL on the server you are trying to access. Clearing the config cache might help as well.",
     ],
   },
-];
-export const wingsTriggers: trigger[] = [
   {
     keys: ["driver failed programming external connectivity"],
     lines: [
@@ -31,9 +29,6 @@ export const wingsTriggers: trigger[] = [
       "Docker might not be running. Run `systemctl status docker` to check its status",
     ],
   },
-];
-export const nginxTriggers: trigger[] = [];
-export const otherTriggers: trigger[] = [
   {
     keys: [
       "does it work on ubuntu",

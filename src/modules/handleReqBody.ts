@@ -47,9 +47,9 @@ export const handleBody = async (
       return await fetchLogs(url);
     } else return "Empty";
   };
-  embed.addFields(await checkLog(await handleLog(body.panel_log), "panel"));
-  embed.addFields(await checkLog(await handleLog(body.wings_log), "wings"));
-  embed.addFields(await checkLog(await handleLog(body.nginx_check), "nginx"));
+  embed.addFields(checkLog(client, await handleLog(body.panel_log)));
+  embed.addFields(checkLog(client, await handleLog(body.wings_log)));
+  embed.addFields(checkLog(client, await handleLog(body.nginx_check)));
 
   return embed;
 };

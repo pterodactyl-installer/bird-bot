@@ -31,13 +31,10 @@ export const handleData = async (
     return;
   }
   client.apiData.delete(req.params.id);
-  const guild = client.guilds.cache.find((g) => g.id === apiData.guild);
-  const channel = guild?.channels.cache.find(
-    (c) => c.id === apiData.channel
-  ) as TextChannel;
-  const adminChannel = guild?.channels.cache.find(
-    (c) => c.id === apiData.adminChannel
-  ) as TextChannel;
+  const channel = (await client.channels.fetch(apiData.channel)) as TextChannel;
+  const adminChannel = (await client.channels.fetch(
+    apiData.adminChannel
+  )) as TextChannel;
   if (!req.body) {
     res.status(422).send({
       code: 422,

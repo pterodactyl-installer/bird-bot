@@ -33,9 +33,7 @@ export const startSupport = async (
       parent: category,
       reason: `Support for ${user.tag}`,
     });
-    const adminChannel = guild.channels.cache.find(
-      (c) => c.name.toLowerCase() === settings.adminChannel
-    );
+    const adminChannel = await client.channels.fetch(settings.adminChannel);
     if (!adminChannel) throw new Error(`Can't find the admin channel!`);
     const id = (await import("shortid")).generate();
     channel.send(
@@ -55,7 +53,6 @@ export const startSupport = async (
     client.apiData.set(id, {
       channel: channel.id,
       adminChannel: adminChannel.id,
-      guild: guild.id,
       user: user,
       settings: settings,
     });

@@ -1,6 +1,6 @@
 import express from "express";
-import { urlencoded, json } from "body-parser";
 import enmap from "enmap";
+import { urlencoded, json } from "body-parser";
 import { readdir, readFile } from "fs";
 import { Client, MessageEmbed, MessageEmbedOptions, Intents } from "discord.js";
 import { Command } from "../interfaces/Command";
@@ -13,6 +13,7 @@ import { handleScript, handleData } from "../modules/handleApi";
 import { promisify } from "util";
 import { handleExceptions } from "../modules/handleExceptions";
 import { Message } from "./Message";
+import { triggers } from "../config/triggers";
 
 const readAsyncDir = promisify(readdir);
 const readAsyncFile = promisify(readFile);
@@ -24,6 +25,7 @@ export class Bot extends Client {
   public commands: enmap<string, Command> = new enmap();
   public settings: enmap<string, GuildSettings> = new enmap("settings");
   public apiData: enmap<string, ApiData> = new enmap();
+  public triggers: enmap<string, string[]> = new enmap();
   public levelCache: { [key: string]: number } = {};
   public script!: string;
   public functions = new Functions();
@@ -33,10 +35,8 @@ export class Bot extends Client {
     const config = this.config;
     handleExceptions(this);
     this.login(config.token);
-    this.express.listen(config.expressPort, () => {
-      this.logger.ready(
-        `API server started on ${config.expressFQDN}:${config.expressPort}`
-      );
+    this.express.listen(parseInt(config.expressPort), () => {
+      this.logger.ready(`API server started on ${config.expressFQDN}`);
     });
     this.express.use(urlencoded({ extended: false }));
     this.express.use(json());
@@ -54,6 +54,9 @@ export class Bot extends Client {
     eventFiles.forEach((event) =>
       this.functions.loadEvent(this, event.split(".")[0])
     );
+    triggers.forEach((trigger) => {
+      this.functions.loadTrigger(this, trigger);
+    });
     for (let i = 0; i < this.config.permLevels.length; i++) {
       const thisLevel: permObject = this.config.permLevels[i];
       this.levelCache[thisLevel.name] = thisLevel.level;

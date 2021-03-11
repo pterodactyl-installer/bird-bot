@@ -5,6 +5,7 @@ import { Command } from "../interfaces/Command";
 import { ChannelConf } from "../interfaces/CreateChannelConf";
 import { Event } from "../interfaces/Event";
 import { GuildSettings } from "../interfaces/GuildSettings";
+import { Trigger } from "../interfaces/Triggers";
 
 export const defaultSettings: GuildSettings = {
   prefix: "!",
@@ -96,6 +97,17 @@ export class Functions {
       client.on(eventName, event.run.bind(null, client));
     } catch (e) {
       client.logger.error(`Unable to load event ${eventName}`);
+      console.error(e);
+    }
+  }
+  /* Loading triggers */
+  public loadTrigger(client: Bot, trigger: Trigger): void {
+    try {
+      trigger.keys.forEach((key) => {
+        client.triggers.set(key, trigger.lines);
+      });
+    } catch (e) {
+      client.logger.error(`Unable to load trigger ${trigger.keys[0]}`);
       console.error(e);
     }
   }

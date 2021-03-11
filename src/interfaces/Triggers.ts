@@ -1,4 +1,4 @@
-export interface trigger {
+export interface Trigger {
   keys: string[];
   lines: string[];
 }
