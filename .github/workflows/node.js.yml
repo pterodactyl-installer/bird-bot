@@ -26,4 +26,4 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm i --production --unsafe-perm
       # - run: npm test add when tests are written
-      - run: npx prettier --check "src/**/*.ts"
+      - run: npm lint
