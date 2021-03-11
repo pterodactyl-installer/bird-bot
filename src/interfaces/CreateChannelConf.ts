@@ -1,6 +1,6 @@
-import { GuildCreateChannelOptions } from 'discord.js';
+import { GuildCreateChannelOptions } from "discord.js";
 
 export interface ChannelConf {
-    name: string;
-    options: GuildCreateChannelOptions;
+  name: string;
+  options: GuildCreateChannelOptions;
 }
