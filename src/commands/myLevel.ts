@@ -1,18 +1,18 @@
-import { RunFunction } from '../interfaces/Command';
+import { RunFunction } from "../interfaces/Command";
 
 export const run: RunFunction = async (client, message) => {
-    message.reply(
-        `Your permission level is: ${message.author.level} - ${message.author.levelName}`
-    );
+  message.reply(
+    `Your permission level is: ${message.author.level} - ${message.author.levelName}`
+  );
 };
 export const conf = {
-    name: 'mylevel',
-    permLevel: 'User',
+  name: "mylevel",
+  permLevel: "User",
 };
 
 export const help = {
-    category: 'Miscelaneous',
-    description:
-        'Tells you your permission level for the current message location.',
-    usage: 'mylevel',
+  category: "Miscelaneous",
+  description:
+    "Tells you your permission level for the current message location.",
+  usage: "mylevel",
 };
