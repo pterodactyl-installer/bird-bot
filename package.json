@@ -9,7 +9,7 @@
         "build": "rimraf dist/* && tsc",
         "lint": "eslint \"src/**\"",
         "prettier": "prettier --check *",
-        "postinstall": "npm run build && node dist/setup.js"
+        "postinstall": "npm run build"
     },
     "engines": {
         "node": ">=12"
