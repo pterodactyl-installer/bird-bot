@@ -15,14 +15,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/vilhelmprytz/bird-bot.git"
+        "url": "git+https://github.com/pterodactyl-installer/bird-bot.git"
     },
     "author": "Linux123123",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/vilhelmprytz/bird-bot/issues"
+        "url": "https://github.com/pterodactyl-installer/bird-bot/issues"
     },
-    "homepage": "https://github.com/vilhelmprytz/bird-bot#readme",
+    "homepage": "https://github.com/pterodactyl-installer/bird-bot#readme",
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^4.15.2",
         "@typescript-eslint/parser": "^4.15.2",
