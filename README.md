@@ -1,7 +1,7 @@
 # bird-bot
 
-![GitHub](https://img.shields.io/github/license/vilhelmprytz/bird-bot)
-[![Build Status](https://travis-ci.com/vilhelmprytz/bird-bot.svg?branch=master)](https://travis-ci.com/vilhelmprytz/bird-bot)
+![GitHub](https://img.shields.io/github/license/pterodactyl-installer/bird-bot)
+![Workflow Status](https://github.com/pterodactyl-installer/bird-bot/actions/workflows/node.js.yml/badge.svg)
 
 Discord bot for the [Pterodactyl Installation Script Discord](https://pterodactyl-installer.se/discord) server!
 
@@ -23,7 +23,7 @@ Then fill in the `env` variables in the `dokcer-compose.yml` file and run `docke
 ## Installation
 
 ```bash
-git clone https://github.com/vilhelmprytz/bird-bot.git
+git clone https://github.com/pterodactyl-installer/bird-bot.git
 ```
 
 ```bash
