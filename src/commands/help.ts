@@ -35,13 +35,14 @@ export const run: RunFunction = async (client: Bot, message, args) => {
     });
 
     message.channel.send(
-      client.embed({
-        title: "Command list",
-        color: message.settings.embedColor,
-        description: `**Use ${message.settings.prefix}help <commandname> for details**`,
-        fields: fields,
-        timestamp: new Date(),
-      })
+      client.embed(
+        {
+          title: "Command list",
+          description: `**Use ${message.settings.prefix}help <commandname> for details**`,
+          fields: fields,
+        },
+        message
+      )
     );
   } else {
     // Show individual command's help.

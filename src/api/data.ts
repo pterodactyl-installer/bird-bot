@@ -18,6 +18,7 @@ export const handleData = async (
       return;
     }
     client.apiData.delete(req.params.id);
+    client.activeSupport.set(req.params.id, apiData.channel);
     const channel = (await client.channels.fetch(
       apiData.channel
     )) as TextChannel;
@@ -47,6 +48,7 @@ export const handleData = async (
       await msg.delete({ timeout: 30000 });
       await channel.parent?.delete("Bad request body");
       await channel.delete("Bad request body");
+      client.activeSupport.delete(req.params.id);
       return;
     } else {
       res.status(200).json({
@@ -162,6 +164,7 @@ export const handleData = async (
           await reaction.users.remove(user);
           await channel.delete("End of support");
           await channel.parent?.delete("End of support");
+          client.activeSupport.delete(req.params.id);
         } else await reaction.users.remove(user);
       });
     }

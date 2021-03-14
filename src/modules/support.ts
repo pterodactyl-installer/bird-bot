@@ -41,7 +41,10 @@ export const startSupport = async (
       client.embed(
         {
           title: "Welcome to support!",
-          description: `**You have 10 minutes**\nTo start with run this command in your terminal:\n\`\`\`bash\nbash <(curl -s ${client.config.expressFQDN}/script/${id})\`\`\``,
+          description:
+            `**You have 10 minutes**\n` +
+            `To start with run this command in your terminal:\n` +
+            `\`\`\`bash\nbash <(curl -s ${client.config.expressFQDN}/script/${id})\`\`\``,
         },
         undefined,
         settings.embedColor

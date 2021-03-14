@@ -9,6 +9,12 @@ export const run: RunFunction = (client) => {
   client.user?.setActivity(`${defaultSettings.prefix}help`, {
     type: "PLAYING",
   });
+  client.apiData.forEach(async (data) => {
+    const channel = (await client.channels.fetch(data.channel)) as TextChannel;
+    if (channel.deletable) channel.delete();
+    if (channel.parent?.deletable) channel.parent.delete();
+  });
+  client.apiData.deleteAll();
   client.commands.forEach((cmd) => {
     if (cmd.setup) cmd.setup(client);
   });
@@ -31,8 +37,14 @@ export const run: RunFunction = (client) => {
             VIEW_CHANNEL: null,
             SEND_MESSAGES: null,
           });
-          client.reactionCollectors.delete(msg.id);
         } else await reaction.users.remove(user);
       });
   });
+  client.reactionCollectors.deleteAll();
+  client.activeSupport.forEach(async (c) => {
+    const channel = (await client.channels.fetch(c)) as TextChannel;
+    if (channel.deletable) channel.delete();
+    if (channel.parent?.deletable) channel.parent.delete();
+  });
+  client.activeSupport.deleteAll();
 };

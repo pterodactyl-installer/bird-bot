@@ -54,7 +54,7 @@ export const run: RunFunction = async (client, message) => {
     const embedColor = await client.functions.awaitReply(
       message.author.id,
       message.channel,
-      "What is the embed color you want to use? (WHITE, PURPLE, RANDOM, #0000FF)"
+      "What is the embed color you want to use? (PURPLE, RANDOM, #0000FF)"
     );
     client.settings.set(message.guild.id, embedColor, "embedColor");
 
@@ -127,11 +127,11 @@ export const run: RunFunction = async (client, message) => {
           },
           {
             id: adminRole.id,
-            allow: ["VIEW_CHANNEL", "SEND_MESSAGES"],
+            allow: ["VIEW_CHANNEL", "SEND_MESSAGES", "MANAGE_MESSAGES"],
           },
           {
             id: supportRole.id,
-            allow: ["VIEW_CHANNEL", "SEND_MESSAGES"],
+            allow: ["VIEW_CHANNEL", "SEND_MESSAGES", "MANAGE_MESSAGES"],
           },
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           { id: client.user!.id, allow: ["SEND_MESSAGES", "VIEW_CHANNEL"] },
@@ -159,11 +159,11 @@ export const run: RunFunction = async (client, message) => {
           },
           {
             id: adminRole.id,
-            allow: ["VIEW_CHANNEL", "SEND_MESSAGES"],
+            allow: ["VIEW_CHANNEL", "SEND_MESSAGES", "MANAGE_MESSAGES"],
           },
           {
             id: supportRole.id,
-            allow: ["VIEW_CHANNEL", "SEND_MESSAGES"],
+            allow: ["VIEW_CHANNEL", "SEND_MESSAGES", "MANAGE_MESSAGES"],
           },
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           { id: client.user!.id, allow: ["SEND_MESSAGES", "VIEW_CHANNEL"] },

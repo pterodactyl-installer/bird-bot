@@ -15,7 +15,7 @@ import { promisify } from "util";
 import { handleExceptions } from "../modules/handleExceptions";
 import { Message } from "./Message";
 import { body } from "express-validator";
-import { RestartReactionController } from "../interfaces/RestartReactionController";
+import { ReaColl } from "../interfaces/ReaColl";
 
 const readAsyncDir = promisify(readdir);
 const readAsyncFile = promisify(readFile);
@@ -26,11 +26,9 @@ export class Bot extends Client {
   }
   public commands: enmap<string, Command> = new enmap();
   public settings: enmap<string, GuildSettings> = new enmap("settings");
-  public apiData: enmap<string, ApiData> = new enmap();
-  public reactionCollectors: enmap<
-    string,
-    RestartReactionController
-  > = new enmap("reactCollect");
+  public apiData: enmap<string, ApiData> = new enmap("apiData");
+  public reactionCollectors: enmap<string, ReaColl> = new enmap("reactCollect");
+  public activeSupport: enmap<string, string> = new enmap("activeSupport");
   public levelCache: { [key: string]: number } = {};
   public script!: string;
   public functions = new Functions();
@@ -50,11 +48,11 @@ export class Bot extends Client {
     });
     this.express.post(
       "/data/:id",
-      body("os").isString(),
-      body("os_ver").isString(),
-      body("panel_log").isString(),
-      body("wings_log").isString(),
-      body("nginx_check").isString(),
+      body("os").isString().isLength({ min: 1 }),
+      body("os_ver").isString().isLength({ min: 1 }),
+      body("panel_log").isString().isLength({ min: 1 }),
+      body("wings_log").isString().isLength({ min: 1 }),
+      body("nginx_check").isString().isLength({ min: 1 }),
       (req: Request, res: Response) => {
         handleData(this, req, res);
       }

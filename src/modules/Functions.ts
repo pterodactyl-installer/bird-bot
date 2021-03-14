@@ -18,7 +18,7 @@ export const defaultSettings: GuildSettings = {
   prefix: "!",
   adminRole: "administrator",
   supportRole: "moderator",
-  embedColor: "#ff0000",
+  embedColor: "#0000FF",
   supportMsgChannel: "",
   supportMsg: "",
   adminChannel: "",
