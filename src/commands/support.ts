@@ -4,34 +4,29 @@ import { RunFunction, SetupFunction } from "../interfaces/Command";
 import { startSupport } from "../modules/support";
 
 export const setup: SetupFunction = async (client) => {
-  setTimeout(() => {
+  try {
     client.guilds.cache.forEach(async (guild) => {
       const settings = client.functions.getSettings(client, guild);
       if (!settings.supportMsg) return;
-      const channel = guild.channels.cache.find(
-        (channel) => channel.name.toLowerCase() === settings.supportMsgChannel
-      );
-      if (typeof channel === "undefined") return;
-      const msg = await (channel as TextChannel).messages.fetch(
-        settings.supportMsg
-      );
-      if (typeof msg === "undefined") return;
-      await msg.react("🔧").catch((e) => {
-        client.logger.error(`An error has accured: ${e}`);
-        console.error(e);
-        return;
-      });
+      const channel = (await client.channels.fetch(
+        settings.supportMsgChannel
+      )) as TextChannel;
+      if (!channel)
+        return client.logger.error("Failed to find support channel!");
+      const msg = await channel.messages.fetch(settings.supportMsg);
+      if (!msg) return client.logger.error("Failed to find support msg!");
+      await msg.react("🔧");
       const filter = (reaction: MessageReaction, user: User) =>
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         user.id !== client.user!.id;
       const collector = msg.createReactionCollector(filter);
-      collector.on("collect", (reaction, user) => {
+      collector.on("collect", async (reaction, user) => {
         if (reaction.emoji.name === "🔧") {
-          const message: unknown = {
+          const message = {
             channel: channel,
             client: client,
             guild: guild,
-            member: guild.members.cache.find((m) => m.id === user.id),
+            member: await guild.members.fetch(user),
             settings: settings,
             author: { id: user.id },
           };
@@ -46,18 +41,18 @@ export const setup: SetupFunction = async (client) => {
           );
           startSupport(client, guild, user, settings);
         }
-        reaction.users.remove(user).catch((err) => {
-          client.logger.error(`An error has accured: ${err}`);
-          console.error(err);
-        });
+        reaction.users.remove(user);
       });
     });
-  }, 5000);
+  } catch (e) {
+    client.logger.error(`An error has accured: ${e}`);
+    console.error(e);
+    return;
+  }
 };
 
 export const run: RunFunction = async (client, message) => {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  startSupport(client, message.guild!, message.author, message.settings);
+  startSupport(client, message.guild, message.author, message.settings);
 };
 
 export const conf = {

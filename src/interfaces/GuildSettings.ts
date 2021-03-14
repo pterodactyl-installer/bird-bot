@@ -4,7 +4,8 @@ export interface GuildSettings {
   supportRole: string;
   embedColor: string;
   supportMsgChannel: string;
-  adminChannel: string;
   supportMsg: string;
+  adminChannel: string;
+  supportChannel: string;
   [key: string]: string;
 }

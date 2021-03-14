@@ -38,12 +38,14 @@ export const startSupport = async (
     const id = (await import("shortid")).generate();
     channel.send(
       user.toString(),
-      client.embed({
-        title: "Welcome to support!",
-        description: `**You have 10 minutes**\nTo start with run this command in your terminal:\n\`\`\`bash\nbash <(curl -s ${client.config.expressFQDN}/script/${id})\`\`\``,
-        color: settings.embedColor,
-        timestamp: new Date(),
-      })
+      client.embed(
+        {
+          title: "Welcome to support!",
+          description: `**You have 10 minutes**\nTo start with run this command in your terminal:\n\`\`\`bash\nbash <(curl -s ${client.config.expressFQDN}/script/${id})\`\`\``,
+        },
+        undefined,
+        settings.embedColor
+      )
     );
     setTimeout(() => {
       client.apiData.delete(id);
@@ -52,7 +54,6 @@ export const startSupport = async (
     }, 600000);
     client.apiData.set(id, {
       channel: channel.id,
-      adminChannel: adminChannel.id,
       user: user,
       settings: settings,
     });

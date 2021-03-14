@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import enmap from "enmap";
 import { urlencoded, json } from "body-parser";
 import { readdir, readFile } from "fs";
@@ -9,11 +9,13 @@ import { Logger } from "../modules/Logger";
 import { Functions } from "../modules/Functions";
 import { GuildSettings } from "../interfaces/GuildSettings";
 import { ApiData } from "../interfaces/ApiData";
-import { handleScript, handleData } from "../modules/handleApi";
+import { handleScript } from "../api/script";
+import { handleData } from "../api/data";
 import { promisify } from "util";
 import { handleExceptions } from "../modules/handleExceptions";
 import { Message } from "./Message";
-import { triggers } from "../config/triggers";
+import { body } from "express-validator";
+import { RestartReactionController } from "../interfaces/RestartReactionController";
 
 const readAsyncDir = promisify(readdir);
 const readAsyncFile = promisify(readFile);
@@ -25,7 +27,10 @@ export class Bot extends Client {
   public commands: enmap<string, Command> = new enmap();
   public settings: enmap<string, GuildSettings> = new enmap("settings");
   public apiData: enmap<string, ApiData> = new enmap();
-  public triggers: enmap<string, string[]> = new enmap();
+  public reactionCollectors: enmap<
+    string,
+    RestartReactionController
+  > = new enmap("reactCollect");
   public levelCache: { [key: string]: number } = {};
   public script!: string;
   public functions = new Functions();
@@ -43,20 +48,25 @@ export class Bot extends Client {
     this.express.get("/script/:id", (req, res) => {
       handleScript(this, req, res);
     });
-    this.express.post("/data/:id", (req, res) => {
-      handleData(this, req, res);
-    });
-    const cmdFiles = await readAsyncDir(`${__dirname}/../commands`);
+    this.express.post(
+      "/data/:id",
+      body("os").isString(),
+      body("os_ver").isString(),
+      body("panel_log").isString(),
+      body("wings_log").isString(),
+      body("nginx_check").isString(),
+      (req: Request, res: Response) => {
+        handleData(this, req, res);
+      }
+    );
+    const triggersFiles = await readAsyncDir(`${__dirname}/../commands`);
     const eventFiles = await readAsyncDir(`${__dirname}/../events`);
-    cmdFiles.forEach((cmd) =>
-      this.functions.loadCommand(this, cmd.split(".")[0])
+    triggersFiles.forEach((cmd) =>
+      this.functions.loadTrigger(this, cmd.split(".")[0])
     );
     eventFiles.forEach((event) =>
       this.functions.loadEvent(this, event.split(".")[0])
     );
-    triggers.forEach((trigger) => {
-      this.functions.loadTrigger(this, trigger);
-    });
     for (let i = 0; i < this.config.permLevels.length; i++) {
       const thisLevel: permObject = this.config.permLevels[i];
       this.levelCache[thisLevel.name] = thisLevel.level;
