@@ -17,22 +17,21 @@ export const run: RunFunction = async (client, message) => {
             {
               name: "Roles",
               value:
-                "There are 2 roles:\n" +
-                "1. Admins - people who can change the setting of the bot and run admin commands\n" +
-                "2. Moderators / Helpers / Support - people who can access the logs channel and the human support channel",
+                "There is only 1 role needed - support/moderator/helper.\n" +
+                "It gives access to the logs channel, ability to always use the human support channel.",
             },
             {
               name: "Channels",
               value:
                 "There are 3 channels needed:\n" +
                 "1. Support message channel - the channel in which people can react to message to get support.\n" +
-                "2. Human support channel - the channel to which people will get access when bot can't help with the error\n" +
-                "3. Admin log channel - the channel where all the logs of peoples system go",
+                "2. Human support channel - the channel to which people will get access when bot can't help with the error.\n" +
+                "3. Admin log channel - the channel where all the logs of peoples system go.",
             },
             {
               name: "\u200b",
               value:
-                "If you read everything and you are ready to continue type Y/y",
+                "**If you read everything and you are ready to continue type Y/y**",
             },
           ],
         },
@@ -57,18 +56,6 @@ export const run: RunFunction = async (client, message) => {
       "What is the embed color you want to use? (PURPLE, RANDOM, #0000FF)"
     );
     client.settings.set(message.guild.id, embedColor, "embedColor");
-
-    const adminRoleName = await client.functions.awaitReply(
-      message.author.id,
-      message.channel,
-      "What is the name of the Admin Role?"
-    );
-    const adminRole = await client.functions.createGuilRole(message, {
-      name: adminRoleName,
-      options: {},
-    });
-    if (!adminRole) return;
-    client.settings.set(guild.id, adminRoleName, "adminRole");
 
     const supportRoleName = await client.functions.awaitReply(
       message.author.id,
@@ -119,19 +106,16 @@ export const run: RunFunction = async (client, message) => {
     const supportChannel = await client.functions.createTextChannel(message, {
       name: supportChannelName,
       options: {
-        topic: "Human support",
+        topic: "Support",
         permissionOverwrites: [
           {
             id: guild.roles.everyone,
-            deny: ["VIEW_CHANNEL"],
-          },
-          {
-            id: adminRole.id,
-            allow: ["VIEW_CHANNEL", "SEND_MESSAGES", "MANAGE_MESSAGES"],
+            deny: ["SEND_MESSAGES"],
+            allow: ["VIEW_CHANNEL", "READ_MESSAGE_HISTORY"],
           },
           {
             id: supportRole.id,
-            allow: ["VIEW_CHANNEL", "SEND_MESSAGES", "MANAGE_MESSAGES"],
+            allow: ["VIEW_CHANNEL", "SEND_MESSAGES"],
           },
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           { id: client.user!.id, allow: ["SEND_MESSAGES", "VIEW_CHANNEL"] },
@@ -142,24 +126,20 @@ export const run: RunFunction = async (client, message) => {
     if (!supportChannel) return;
     client.settings.set(guild.id, supportChannel.id, "supportChannel");
 
-    const adminChannelName = await client.functions.awaitReply(
+    const logsChannelName = await client.functions.awaitReply(
       message.author.id,
       message.channel,
       "What is the channel for admin logs name?"
     );
 
-    const adminChannel = await client.functions.createTextChannel(message, {
-      name: adminChannelName,
+    const logsChannel = await client.functions.createTextChannel(message, {
+      name: logsChannelName,
       options: {
         topic: "Admin logs",
         permissionOverwrites: [
           {
             id: guild.roles.everyone,
             deny: ["VIEW_CHANNEL"],
-          },
-          {
-            id: adminRole.id,
-            allow: ["VIEW_CHANNEL", "SEND_MESSAGES", "MANAGE_MESSAGES"],
           },
           {
             id: supportRole.id,
@@ -171,10 +151,10 @@ export const run: RunFunction = async (client, message) => {
         reason: "Admin logs channel!",
       },
     });
-    if (!adminChannel) return;
-    client.settings.set(guild.id, adminChannel.id, "adminChannel");
+    if (!logsChannel) return;
+    client.settings.set(guild.id, logsChannel.id, "logsChannel");
 
-    message.channel.send("Successfully configured!");
+    message.settings = client.functions.getSettings(client, message.guild);
 
     const msg = await supportMsgChannel.send(
       client.embed(client.config.supportMsg, message)
@@ -182,6 +162,7 @@ export const run: RunFunction = async (client, message) => {
     client.settings.set(guild.id, msg.id, "supportMsg");
     const supportCmd = client.commands.get("support");
     if (supportCmd?.setup) supportCmd.setup(client);
+    message.channel.send("Successfully configured!");
   } catch (e) {
     message.channel.send("An error has accured! check the console!");
     client.logger.error(`An error has accured: ${e}`);

@@ -22,8 +22,8 @@ export const handleData = async (
     const channel = (await client.channels.fetch(
       apiData.channel
     )) as TextChannel;
-    const adminChannel = (await client.channels.fetch(
-      apiData.settings.adminChannel
+    const logsChannel = (await client.channels.fetch(
+      apiData.settings.logsChannel
     )) as TextChannel;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -58,7 +58,7 @@ export const handleData = async (
       });
       const embed = await handleBody(client, req.body, apiData.settings);
       await channel.send(embed);
-      const adminMsg = await adminChannel.send(apiData.user.toString(), embed);
+      const adminMsg = await logsChannel.send(apiData.user.toString(), embed);
       if (embed.fields.length < 5) {
         const rez = await client.functions.awaitReply(
           apiData.user.id,
@@ -138,7 +138,7 @@ export const handleData = async (
               collector.on("collect", reactionCollect);
               client.reactionCollectors.set(adminMsg.id, {
                 supportChannel: supportChannel.id,
-                adminChannel: adminChannel.id,
+                adminChannel: logsChannel.id,
                 user: apiData.user.id,
               });
               await supportChannel.send(

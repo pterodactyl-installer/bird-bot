@@ -2,6 +2,7 @@ import {
   Guild,
   MessageAttachment,
   MessageEmbed,
+  PermissionOverwrites,
   Role,
   TextChannel,
 } from "discord.js";
@@ -16,12 +17,11 @@ import { GuildSettings } from "../interfaces/GuildSettings";
 
 export const defaultSettings: GuildSettings = {
   prefix: "!",
-  adminRole: "administrator",
-  supportRole: "moderator",
+  supportRole: "",
   embedColor: "#0000FF",
   supportMsgChannel: "",
   supportMsg: "",
-  adminChannel: "",
+  logsChannel: "",
   supportChannel: "",
 };
 
@@ -142,15 +142,15 @@ export class Functions {
     channelConf: ChannelConf
   ): Promise<TextChannel | undefined> {
     try {
+      if (!message.guild.me?.hasPermission("MANAGE_CHANNELS")) {
+        message.reply(`I don't have permissions to create a channel!`);
+        throw new Error(`I don't have permissions to create a channel!`);
+      }
       let channel = message.guild.channels.cache.find(
         (channel) =>
           channel.name.toLowerCase() === channelConf.name.toLowerCase()
       );
       if (!channel) {
-        if (!message.guild.me?.hasPermission("MANAGE_CHANNELS")) {
-          message.reply(`I don't have permissions to create a channel!`);
-          throw new Error(`I don't have permissions to create a channel!`);
-        }
         channel = await message.guild.channels.create(channelConf.name, {
           ...channelConf.options,
           type: "text",

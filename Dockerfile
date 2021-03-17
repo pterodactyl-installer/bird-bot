@@ -1,4 +1,4 @@
-FROM node:14-buster-slim
+FROM node:lts-buster-slim
 LABEL author="Linux123123" maintainer="linas.alexx@gmail.com"
 
 WORKDIR /usr/src/bot

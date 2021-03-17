@@ -1,12 +1,13 @@
-import express, { Request, Response } from "express";
 import enmap from "enmap";
+import express, { Request, Response } from "express";
+import { body } from "express-validator";
 import { urlencoded, json } from "body-parser";
 import { readdir, readFile } from "fs";
 import { Client, MessageEmbed, MessageEmbedOptions, Intents } from "discord.js";
 import { Command } from "../interfaces/Command";
 import { Config, permObject } from "../interfaces/Config";
 import { Logger } from "../modules/Logger";
-import { Functions } from "../modules/Functions";
+import { defaultSettings, Functions } from "../modules/Functions";
 import { GuildSettings } from "../interfaces/GuildSettings";
 import { ApiData } from "../interfaces/ApiData";
 import { handleScript } from "../api/script";
@@ -14,7 +15,6 @@ import { handleData } from "../api/data";
 import { promisify } from "util";
 import { handleExceptions } from "../modules/handleExceptions";
 import { Message } from "./Message";
-import { body } from "express-validator";
 import { ReaColl } from "../interfaces/ReaColl";
 
 const readAsyncDir = promisify(readdir);
@@ -77,7 +77,7 @@ export class Bot extends Client {
   public embed(
     data: MessageEmbedOptions,
     message?: Message,
-    embedColor = "#0000FF"
+    embedColor = defaultSettings.embedColor
   ): MessageEmbed {
     return new MessageEmbed({
       ...data,

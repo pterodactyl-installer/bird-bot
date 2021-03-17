@@ -33,8 +33,8 @@ export const startSupport = async (
       parent: category,
       reason: `Support for ${user.tag}`,
     });
-    const adminChannel = await client.channels.fetch(settings.adminChannel);
-    if (!adminChannel) throw new Error(`Can't find the admin channel!`);
+    const logsChannel = await client.channels.fetch(settings.logsChannel);
+    if (!logsChannel) throw new Error(`Can't find the logs channel!`);
     const id = (await import("shortid")).generate();
     channel.send(
       user.toString(),
