@@ -69,8 +69,8 @@ panel_logs(){
 }
 
 wings_logs(){
-  if [ -x "$(command -v wings)" ]; then
-    wings_log="Empty" # Todo
+  if [ -f "/var/log/pterodactyl/wings.log" ]; then
+    wings_log="$(nc termbin.com 9999 < /var/log/pterodactyl/wings.log | tr -d '\0')"
   else
     wings_log="Empty"
   fi
