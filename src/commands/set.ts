@@ -93,7 +93,7 @@ export const run: RunFunction = async (
 };
 export const conf = {
   name: "set",
-  permLevel: "Administrator",
+  permLevel: "Owner",
 };
 
 export const help = {

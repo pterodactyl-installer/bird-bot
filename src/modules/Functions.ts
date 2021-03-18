@@ -1,20 +1,27 @@
-import { Guild, MessageEmbed, TextChannel } from "discord.js";
+import {
+  Guild,
+  MessageAttachment,
+  MessageEmbed,
+  Role,
+  TextChannel,
+} from "discord.js";
+import { createWorker } from "tesseract.js";
 import { Bot } from "../classes/Client";
 import { Message } from "../classes/Message";
 import { Command } from "../interfaces/Command";
 import { ChannelConf } from "../interfaces/CreateChannelConf";
+import { RoleConf } from "../interfaces/CreateGuildRoleConf";
 import { Event } from "../interfaces/Event";
 import { GuildSettings } from "../interfaces/GuildSettings";
-import { Trigger } from "../interfaces/Triggers";
 
 export const defaultSettings: GuildSettings = {
   prefix: "!",
-  adminRole: "administrator",
-  supportRole: "moderator",
-  embedColor: "#ff0000",
+  supportRole: "",
+  embedColor: "#0000FF",
   supportMsgChannel: "",
-  adminChannel: "",
   supportMsg: "",
+  logsChannel: "",
+  supportChannel: "",
 };
 
 export class Functions {
@@ -46,47 +53,15 @@ export class Functions {
     const guildConf = client.settings.get(guild.id) || {};
     return { ...defaultSettings, ...guildConf };
   }
-  /* Loading commands */
-  public async loadCommand(client: Bot, commandName: string): Promise<void> {
+  /* Loading triggers */
+  public async loadTrigger(client: Bot, commandName: string): Promise<void> {
     try {
-      client.logger.log(`Loading Command: ${commandName}`);
+      client.logger.log(`Loading Trigger: ${commandName}`);
       const cmd: Command = await import(`../commands/${commandName}`);
-      if (cmd.setup) cmd.setup(client);
       client.commands.set(cmd.conf.name, cmd);
     } catch (e) {
-      client.logger.error(`Unable to load command ${commandName}`);
+      client.logger.error(`Unable to load Trigger ${commandName}`);
       console.error(e);
-    }
-  }
-  public async unloadCommand(
-    client: Bot,
-    commandName: string
-  ): Promise<boolean | string> {
-    try {
-      client.logger.log(`Unloading Command: ${commandName}`);
-      let command;
-      if (client.commands.has(commandName)) {
-        command = client.commands.get(commandName);
-      }
-      if (!command)
-        return `The command \`${commandName}\` doesn't seem to exist, nor is it an alias. Try again!`;
-      const mod =
-        require.cache[require.resolve(`../commands/${command.conf.name}`)];
-      if (!mod) return `Can't find the module`;
-      delete require.cache[
-        require.resolve(`../commands/${command.conf.name}.js`)
-      ];
-      for (let i = 0; i < (mod.parent?.children.length || 0); i++) {
-        if (mod.parent?.children[i] === mod) {
-          mod.parent?.children.splice(i, 1);
-          break;
-        }
-      }
-      return false;
-    } catch (e) {
-      client.logger.error(`Unable to unload command ${commandName}: ${e}`);
-      console.error(e);
-      return e;
     }
   }
   /* Loading events */
@@ -97,17 +72,6 @@ export class Functions {
       client.on(eventName, event.run.bind(null, client));
     } catch (e) {
       client.logger.error(`Unable to load event ${eventName}`);
-      console.error(e);
-    }
-  }
-  /* Loading triggers */
-  public loadTrigger(client: Bot, trigger: Trigger): void {
-    try {
-      trigger.keys.forEach((key) => {
-        client.triggers.set(key, trigger.lines);
-      });
-    } catch (e) {
-      client.logger.error(`Unable to load trigger ${trigger.keys[0]}`);
       console.error(e);
     }
   }
@@ -137,50 +101,108 @@ export class Functions {
     );
   }
   /*
-    SINGLE-LINE AWAITMESSAGE
-    const response = await client.awaitReply(msg, "Favourite Color?");
-    msg.reply(`Oh, I really love ${response} too!`);
-    */
+  SINGLE-LINE AWAITREPLY
+  */
   public async awaitReply(
     userId: string,
     channel: TextChannel,
-    question: string,
-    limit = 60000
+    question?: string | MessageEmbed,
+    limit = 9999999
   ): Promise<string> {
     const filter = (m: Message) => m.author.id === userId;
-    await channel.send(question);
+    if (question) await channel.send(question);
     const collected = await channel.awaitMessages(filter, {
       max: 1,
       time: limit,
       errors: ["time"],
     });
-    return collected.first()?.content || "Error";
+    return collected.first()?.content || "Empty";
+  }
+  /*
+  SINGLE-LINE AWAITMESSAGE
+  */
+  public async awaitMessage(
+    userId: string,
+    channel: TextChannel,
+    question?: string,
+    limit = 9999999
+  ): Promise<Message> {
+    const filter = (m: Message) => m.author.id === userId;
+    if (question) await channel.send(question);
+    const collected = await channel.awaitMessages(filter, {
+      max: 1,
+      time: limit,
+      errors: ["time"],
+    });
+    return collected.first() as Message;
   }
   public async createTextChannel(
     message: Message,
     channelConf: ChannelConf
   ): Promise<TextChannel | undefined> {
     try {
-      let channel = message.guild?.channels.cache.find(
+      if (!message.guild.me?.hasPermission("MANAGE_CHANNELS")) {
+        message.reply(`I don't have permissions to create a channel!`);
+        throw new Error(`I don't have permissions to create a channel!`);
+      }
+      let channel = message.guild.channels.cache.find(
         (channel) =>
           channel.name.toLowerCase() === channelConf.name.toLowerCase()
       );
       if (!channel) {
-        if (!message.guild.me?.hasPermission("MANAGE_CHANNELS")) {
-          message.reply(`I don't have permissions to create a channel!`);
-          return;
-        }
-        channel = await message.guild?.channels.create(channelConf.name, {
+        channel = await message.guild.channels.create(channelConf.name, {
           ...channelConf.options,
           type: "text",
         });
       }
-      channel?.fetch(true);
+      if (!channel) throw new Error("Error creating the channel!");
       return channel as TextChannel;
     } catch (err) {
       message.client.logger.error(`An error has accured: ${err}`);
       console.error(err);
       return;
     }
+  }
+  public async createGuilRole(
+    message: Message,
+    roleConf: RoleConf
+  ): Promise<Role | undefined> {
+    try {
+      let role = message.guild.roles.cache.find(
+        (r) => r.name.toLowerCase() === roleConf.name.toLowerCase()
+      );
+      if (!role) {
+        if (!message.guild.me?.hasPermission("MANAGE_ROLES")) {
+          message.reply(`I don't have permissions to manages roles!`);
+          throw new Error("Bot doesn't have permissions to manage roles!");
+        }
+        role = await message.guild.roles.create({
+          data: { ...roleConf.options, name: roleConf.name },
+        });
+      }
+      if (!role) throw new Error("Error creating the role");
+      return role;
+    } catch (err) {
+      message.client.logger.error(`An error has accured: ${err}`);
+      console.error(err);
+      return;
+    }
+  }
+  /*
+    PARSE-IMAGE
+    Pareses an image and gives back text
+    */
+  public async parseImage(item: MessageAttachment): Promise<string> {
+    const worker = createWorker({
+      langPath: `${__dirname}/../../eng.traineddata`,
+    });
+    await worker.load();
+    await worker.loadLanguage("eng");
+    await worker.initialize("eng");
+    const {
+      data: { text },
+    } = await worker.recognize(item.url);
+    await worker.terminate();
+    return text;
   }
 }

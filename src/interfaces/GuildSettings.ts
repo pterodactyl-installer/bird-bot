@@ -1,10 +1,10 @@
 export interface GuildSettings {
   prefix: string;
-  adminRole: string;
   supportRole: string;
   embedColor: string;
   supportMsgChannel: string;
-  adminChannel: string;
   supportMsg: string;
+  logsChannel: string;
+  supportChannel: string;
   [key: string]: string;
 }
