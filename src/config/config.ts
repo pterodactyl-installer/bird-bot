@@ -18,6 +18,12 @@ export const config: Config = {
   // Express FQDN (external) for user to use to connect (can include :port)
   expressFQDN: process.env.FQDN ? process.env.FQDN : "FQDN",
 
+  // An FQDN to netcat based pastebin server instance
+  binFQDN: process.env.binFQDN ? process.env.binFQDN : "binFQDN",
+
+  // The port on which that the server is hosted
+  binPORT: process.env.binPORT ? process.env.binPORT : "binPORT",
+
   // Support Message
   supportMsg: {
     title: "Support!",

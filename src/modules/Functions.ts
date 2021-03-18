@@ -2,7 +2,6 @@ import {
   Guild,
   MessageAttachment,
   MessageEmbed,
-  PermissionOverwrites,
   Role,
   TextChannel,
 } from "discord.js";

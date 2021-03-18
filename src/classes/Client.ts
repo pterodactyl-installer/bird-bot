@@ -72,7 +72,12 @@ export class Bot extends Client {
     this.script = await readAsyncFile(
       `${__dirname}/../../scripts/troubleshooting.sh`,
       { encoding: "utf-8" }
-    );
+    ).then((script) => {
+      return script.replace(
+        "NC_URL_PORT",
+        `"${this.config.binFQDN} ${this.config.binPORT}"`
+      );
+    });
   }
   public embed(
     data: MessageEmbedOptions,

@@ -21,6 +21,11 @@ print() {
   echo "* $1"
 }
 
+######## Variables ########
+
+nc_url_port=NC_URL_PORT
+req_url=LINK
+
 ##### Main functions #####
 
 detect_distro() {
@@ -57,12 +62,11 @@ detect_distro() {
   fi
 
   OS=$(echo "$OS" | awk '{print tolower($0)}')
-  OS_VER_MAJOR=$(echo "$OS_VER" | cut -d. -f1)
 }
 
 panel_logs(){
   if [ -f "/var/www/pterodactyl/storage/logs/laravel-$(date +%F).log" ]; then 
-    panel_log="$(nc termbin.com 9999 < /var/www/pterodactyl/storage/logs/laravel-"$(date +%F)".log | tr -d '\0')"
+    panel_log="$(nc $nc_url_port < /var/www/pterodactyl/storage/logs/laravel-"$(date +%F)".log | tr -d '\0')"
   else
     panel_log='Empty'
   fi
@@ -70,7 +74,7 @@ panel_logs(){
 
 wings_logs(){
   if [ -f "/var/log/pterodactyl/wings.log" ]; then
-    wings_log="$(nc termbin.com 9999 < /var/log/pterodactyl/wings.log | tr -d '\0')"
+    wings_log="$(nc $nc_url_port < /var/log/pterodactyl/wings.log | tr -d '\0')"
   else
     wings_log="Empty"
   fi
@@ -78,19 +82,19 @@ wings_logs(){
 
 check_nginx(){
   if [ -x "$(command -v nginx)" ]; then
-    nginx_check="$(nginx -t 2>&1 | nc termbin.com 9999 | tr -d '\0')"
+    nginx_check="$(nginx -t 2>&1 | nc $nc_url_port | tr -d '\0')"
   else
     nginx_check="Empty"
   fi
 }
 
 post(){
-  Data="{\"os\":\"$OS\", \"os_ver\":\"$OS_VER_MAJOR\", \"panel_log\":\"$panel_log\", \"wings_log\":\"$wings_log\", \"nginx_check\":\"$nginx_check\"}"
+  Data="{\"os\":\"$OS\", \"os_ver\":\"$OS_VER\", \"panel_log\":\"$panel_log\", \"wings_log\":\"$wings_log\", \"nginx_check\":\"$nginx_check\"}"
   curl -s \
     --header "Content-Type: application/json" \
     --request POST \
     --data "$Data" \
-    LINK
+    $req_url
 }
 
 main(){

@@ -2,9 +2,7 @@ version: "3"
 services:
   bird-bot:
     container_name: "bird-bot"
-    build:
-      dockerfile: "Dockerfile"
-      context: "."
+    image: "pterodactylinstaller/bird-bot:latest"
     environment:
       # Your bots token
       - TOKEN=
@@ -12,6 +10,10 @@ services:
       - PORT=5000
       # The full FQDN (https://api.api.com or http://api.api.com:5000)
       - FQDN=https://
+      # The FQDN to a netcat based pastebin server instance
+      - binFQDN=
+      # The port on which that the server is hosted
+      - binPORT=
     ports:
       - ${PORT}:${PORT}
     volumes:

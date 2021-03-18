@@ -37,13 +37,15 @@ export const handleData = async (
         success: false,
       });
       const msg = await channel.send(
-        client.embed({
-          title: "Bad data received",
-          description:
-            "Bad **POST** request was received. Stopping this support!",
-          color: apiData.settings.embedColor,
-          timestamp: new Date(),
-        })
+        client.embed(
+          {
+            title: "Bad data received",
+            description:
+              "Bad **POST** request was received. Stopping this support!",
+          },
+          undefined,
+          apiData.settings.embedColor
+        )
       );
       await msg.delete({ timeout: 30000 });
       await channel.parent?.delete("Bad request body");
