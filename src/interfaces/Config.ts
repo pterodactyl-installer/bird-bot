@@ -16,6 +16,8 @@ export interface Config {
   token: string;
   expressPort: string;
   expressFQDN: string;
+  binFQDN: string;
+  binPORT: string;
   supportMsg: MessageEmbedOptions;
   permLevels: permObject[];
 }

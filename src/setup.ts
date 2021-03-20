@@ -33,5 +33,21 @@ if (config.expressFQDN === "FQDN") {
   baseSrcConfig = baseSrcConfig.replace('"FQDN"', `"${FQDN}"`);
 }
 
+if (config.binFQDN === "binFQDN") {
+  console.log("An FQDN to netcat based pastebin server instance: ");
+  const binFQDN = reader.question();
+  baseConfig = baseConfig.replace('"binFQDN"', `"${binFQDN}"`);
+  baseSrcConfig = baseSrcConfig.replace('"binFQDN"', `"${binFQDN}"`);
+}
+
+if (config.binPORT === "binPORT") {
+  console.log(
+    "The port on which that the pastebin nc server is hosted (9999): "
+  );
+  const binPORT = reader.question("", { defaultInput: "9999" });
+  baseConfig = baseConfig.replace('"binPORT"', `"${binPORT}"`);
+  baseSrcConfig = baseSrcConfig.replace('"binPORT"', `"${binPORT}"`);
+}
+
 fs.writeFileSync(`${__dirname}/config/config.js`, baseConfig);
 fs.writeFileSync(`${__dirname}/../src/config/config.ts`, baseSrcConfig);

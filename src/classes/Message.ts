@@ -1,4 +1,4 @@
-import { Guild, Message as DiscordMessage } from "discord.js";
+import { Guild, Message as DiscordMessage, TextChannel } from "discord.js";
 import { Bot } from "./Client";
 import { GuildSettings } from "../interfaces/GuildSettings";
 import { User } from "./User";
@@ -8,4 +8,5 @@ export class Message extends DiscordMessage {
   public client!: Bot;
   public guild!: Guild;
   public author!: User;
+  channel!: TextChannel;
 }

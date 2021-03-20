@@ -1,5 +1,33 @@
 #!/bin/bash
 
+######## General checks #########
+
+# exit with error status code if user is not root
+if [[ $EUID -ne 0 ]]; then
+  echo "* This script must be executed with root privileges (not sudo)." 1>&2
+  exit 1
+fi
+
+# check for curl
+if ! [ -x "$(command -v curl)" ]; then
+  echo "* curl is required in order for this script to work."
+  echo "* install using apt (Debian and derivatives) or yum/dnf (CentOS)"
+  exit 1
+fi
+
+####### Visual functions ########
+
+print() {
+  echo "* $1"
+}
+
+######## Variables ########
+
+nc_url_port=NC_URL_PORT
+req_url=LINK
+
+##### Main functions #####
+
 detect_distro() {
   if [ -f /etc/os-release ]; then
     # freedesktop.org and systemd
@@ -34,26 +62,53 @@ detect_distro() {
   fi
 
   OS=$(echo "$OS" | awk '{print tolower($0)}')
-  OS_VER_MAJOR=$(echo "$OS_VER" | cut -d. -f1)
 }
 
 panel_logs(){
   if [ -f "/var/www/pterodactyl/storage/logs/laravel-$(date +%F).log" ]; then 
-    panel_log="$(tail -n 100 /var/www/pterodactyl/storage/logs/laravel-"$(date +%F)".log | nc bin.ptdl.co 99)"
+    panel_log="$(nc $nc_url_port < /var/www/pterodactyl/storage/logs/laravel-"$(date +%F)".log | tr -d '\0')"
   else
     panel_log='Empty'
   fi
 }
 
+wings_logs(){
+  if [ -f "/var/log/pterodactyl/wings.log" ]; then
+    wings_log="$(nc $nc_url_port < /var/log/pterodactyl/wings.log | tr -d '\0')"
+  else
+    wings_log="Empty"
+  fi
+}
+
+check_nginx(){
+  if [ -x "$(command -v nginx)" ]; then
+    nginx_check="$(nginx -t 2>&1 | nc $nc_url_port | tr -d '\0')"
+  else
+    nginx_check="Empty"
+  fi
+}
+
 post(){
-  Data="{\"os\":\"$OS\", \"os_ver\":\"$OS_VER_MAJOR\", \"panel_log\":\"$panel_log\", \"wings_log\":\"Empty\", \"nginx_check\":\"Empty\"}"
+  Data="{\"os\":\"$OS\", \"os_ver\":\"$OS_VER\", \"panel_log\":\"$panel_log\", \"wings_log\":\"$wings_log\", \"nginx_check\":\"$nginx_check\"}"
   curl -s \
     --header "Content-Type: application/json" \
     --request POST \
     --data "$Data" \
-    LINK
+    $req_url
 }
 
-detect_distro
-panel_logs
-post
+main(){
+  print "Starting the troubleshooting script."
+  print "Detecting OS."
+  detect_distro
+  print "Retrieving panel logs."
+  panel_logs
+  print "Retrieving wings logs."
+  wings_logs
+  print "Retrieving nginx logs."
+  check_nginx
+  print "Sending the data to server."
+  post
+}
+
+main

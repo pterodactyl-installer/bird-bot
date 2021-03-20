@@ -1,12 +1,24 @@
-version: '3'
+version: "3"
 services:
-    bird-bot:
-        image: 'linux123123/images:bird-bot'
-        container_name: 'bird-bot'
-        environment:
-            - TOKEN=
-            - PORT=5000
-            - FQDN=https://
-        ports:
-            - 5000:5000
-        restart: unless-stopped
+  bird-bot:
+    container_name: "bird-bot"
+    image: "pterodactylinstaller/bird-bot:latest"
+    environment:
+      # Your bots token
+      - TOKEN=
+      # Port for api to bind.
+      - PORT=5000
+      # The full FQDN (https://api.api.com or http://api.api.com:5000)
+      - FQDN=https://
+      # The FQDN to a netcat based pastebin server instance
+      - binFQDN=
+      # The port on which that the server is hosted
+      - binPORT=
+    ports:
+      - ${PORT}:${PORT}
+    volumes:
+      - db:/usr/src/bot/data
+    restart: unless-stopped
+
+volumes:
+  db:

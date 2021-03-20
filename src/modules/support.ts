@@ -33,17 +33,22 @@ export const startSupport = async (
       parent: category,
       reason: `Support for ${user.tag}`,
     });
-    const adminChannel = await client.channels.fetch(settings.adminChannel);
-    if (!adminChannel) throw new Error(`Can't find the admin channel!`);
+    const logsChannel = await client.channels.fetch(settings.logsChannel);
+    if (!logsChannel) throw new Error(`Can't find the logs channel!`);
     const id = (await import("shortid")).generate();
     channel.send(
       user.toString(),
-      client.embed({
-        title: "Welcome to support!",
-        description: `**You have 10 minutes**\nTo start with run this command in your terminal:\n\`\`\`bash\nbash <(curl -s ${client.config.expressFQDN}/script/${id})\`\`\``,
-        color: settings.embedColor,
-        timestamp: new Date(),
-      })
+      client.embed(
+        {
+          title: "Welcome to support!",
+          description:
+            `**You have 10 minutes**\n` +
+            `To start with run this command in your terminal:\n` +
+            `\`\`\`bash\nbash <(curl -s ${client.config.expressFQDN}/script/${id})\`\`\``,
+        },
+        undefined,
+        settings.embedColor
+      )
     );
     setTimeout(() => {
       client.apiData.delete(id);
@@ -52,7 +57,6 @@ export const startSupport = async (
     }, 600000);
     client.apiData.set(id, {
       channel: channel.id,
-      adminChannel: adminChannel.id,
       user: user,
       settings: settings,
     });

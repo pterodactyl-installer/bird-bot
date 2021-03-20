@@ -18,6 +18,12 @@ export const config: Config = {
   // Express FQDN (external) for user to use to connect (can include :port)
   expressFQDN: process.env.FQDN ? process.env.FQDN : "FQDN",
 
+  // An FQDN to netcat based pastebin server instance
+  binFQDN: process.env.binFQDN ? process.env.binFQDN : "binFQDN",
+
+  // The port on which that the server is hosted
+  binPORT: process.env.binPORT ? process.env.binPORT : "binPORT",
+
   // Support Message
   supportMsg: {
     title: "Support!",
@@ -38,28 +44,12 @@ export const config: Config = {
         try {
           const modRole = message.guild?.roles.cache.find(
             (r) =>
-              r.name.toLowerCase() === message.settings.modRole.toLowerCase()
+              r.name.toLowerCase() ===
+              message.settings.supportRole.toLowerCase()
           );
           if (modRole && message.member?.roles.cache.has(modRole.id))
             return true;
           return false;
-        } catch (e) {
-          return false;
-        }
-      },
-    },
-    {
-      level: 3,
-      name: "Administrator",
-      check: (message: Message): boolean => {
-        try {
-          const adminRole = message.guild?.roles.cache.find(
-            (r) =>
-              r.name.toLowerCase() === message.settings.adminRole.toLowerCase()
-          );
-          if (!adminRole) return false;
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          return message.member!.roles.cache.has(adminRole.id);
         } catch (e) {
           return false;
         }
@@ -74,7 +64,6 @@ export const config: Config = {
     {
       level: 10,
       name: "Bot Creator",
-      // Another simple check, compares the message author id to the one stored in the config file.
       check: (message) =>
         (message.client as Bot).config.ownerID === message.author.id,
     },
