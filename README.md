@@ -8,7 +8,7 @@ Discord bot for the [Pterodactyl Installation Script Discord](https://pterodacty
 
 # Docker image
 
-We provide an easy to use `docker-compose.yml` file. Just install `docker` and `docker-compose`.
+We provide an easy-to-use `docker-compose.yml` file. Just install `docker` and `docker-compose`.
 Then fill in the `env` variables in the `docker-compose.yml` file and run `docker-compose up -d`
 
 ## Requirements
